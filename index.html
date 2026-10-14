@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GNN Robustness Tutorial</title>
+<meta name="description" content="DSAA 2024 tutorial on adversarial attacks and defenses in Graph Neural Networks: program, topics, speakers, and references.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🕸️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* layout concept: single-column editorial scroll; sticky pill-nav; a timed
+   program rendered as a real timeline (it IS a schedule); attack/defense
+   content pairs carry their own semantic hue throughout */
+:root{
+  --bg:#f3f4f7;
+  --surface:#ffffff;
+  --surface-2:#eceef2;
+  --fg:#171a1f;
+  --fg-muted:#5a6168;
+  --line:#dde1e7;
+  --accent:#223a5e;
+  --accent-ink:#ffffff;
+  --attack:#a8472c;
+  --attack-soft:#f3e2dc;
+  --defense:#1f6f5c;
+  --defense-soft:#dfece6;
+  --font-display:'Fraunces',Georgia,'Times New Roman',serif;
+  --font-body:'Work Sans',system-ui,-apple-system,Segoe UI,sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#14171c;
+    --surface:#1b1f26;
+    --surface-2:#20252c;
+    --fg:#e9eaed;
+    --fg-muted:#9aa3ad;
+    --line:#2b3039;
+    --accent:#8aa9d6;
+    --accent-ink:#0e1420;
+    --attack:#dd8a6c;
+    --attack-soft:#3a2620;
+    --defense:#6fd1b3;
+    --defense-soft:#1c322c;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14171c;
+  --surface:#1b1f26;
+  --surface-2:#20252c;
+  --fg:#e9eaed;
+  --fg-muted:#9aa3ad;
+  --line:#2b3039;
+  --accent:#8aa9d6;
+  --accent-ink:#0e1420;
+  --attack:#dd8a6c;
+  --attack-soft:#3a2620;
+  --defense:#6fd1b3;
+  --defense-soft:#1c322c;
+  color-scheme: dark;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;}
+body{
+  background:var(--bg);
+  color:var(--fg);
+  font-family:var(--font-body);
+  font-size:16px;
+  line-height:1.6;
+}
+img{max-width:100%;}
+[hidden]{display:none!important;}
+a{color:var(--accent);}
+.wrap{
+  max-width:860px;
+  margin-inline:auto;
+  padding-inline:20px;
+}
+h1,h2,h3{
+  font-family:var(--font-display);
+  font-weight:600;
+  text-wrap:balance;
+  margin:0;
+}
+p{margin:0 0 1em;}
+.eyebrow{
+  font-family:var(--font-mono);
+  font-size:12.5px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--fg-muted);
+}
+
+/* nav */
+nav.topbar{
+  position:sticky;
+  top:0;
+  z-index:10;
+  background:color-mix(in srgb, var(--bg) 86%, transparent);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+nav.topbar .inner{
+  max-width:860px;
+  margin-inline:auto;
+  padding:12px 20px;
+  display:flex;
+  align-items:center;
+  gap:18px;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+nav.topbar .inner::-webkit-scrollbar{display:none;}
+nav.topbar .brand{
+  font-family:var(--font-display);
+  font-weight:600;
+  font-size:15px;
+  white-space:nowrap;
+  flex:0 0 auto;
+}
+nav.topbar a.navlink{
+  font-size:13.5px;
+  color:var(--fg-muted);
+  text-decoration:none;
+  white-space:nowrap;
+  flex:0 0 auto;
+}
+nav.topbar a.navlink:hover{color:var(--fg);}
+
+/* hero */
+header.hero{
+  padding-block:52px 36px;
+  border-bottom:1px solid var(--line);
+}
+header.hero .venue-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  align-items:center;
+  margin-bottom:18px;
+}
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-family:var(--font-mono);
+  font-size:12px;
+  letter-spacing:.03em;
+  padding:4px 10px;
+  border-radius:100px;
+  border:1px solid var(--line);
+  color:var(--fg-muted);
+  background:var(--surface);
+}
+header.hero h1{
+  font-size:clamp(28px,5vw,42px);
+  line-height:1.12;
+  max-width:16ch;
+}
+header.hero .lede{
+  margin-top:16px;
+  font-size:17px;
+  color:var(--fg-muted);
+  max-width:60ch;
+}
+.index-terms{
+  margin-top:20px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.index-terms span{
+  font-family:var(--font-mono);
+  font-size:11.5px;
+  padding:3px 9px;
+  border-radius:5px;
+  background:var(--surface-2);
+  color:var(--fg-muted);
+}
+
+/* sections */
+section{
+  padding-block:44px;
+  border-bottom:1px solid var(--line);
+}
+section:last-of-type{border-bottom:none;}
+section .section-head{
+  display:flex;
+  align-items:baseline;
+  gap:12px;
+  margin-bottom:22px;
+}
+section .section-head h2{font-size:22px;}
+section .section-head .num{
+  font-family:var(--font-mono);
+  font-size:13px;
+  color:var(--fg-muted);
+}
+
+/* program timeline */
+.stat-row{
+  display:flex;
+  gap:22px;
+  flex-wrap:wrap;
+  margin-bottom:26px;
+}
+.stat{min-width:90px;}
+.stat .n{
+  font-family:var(--font-display);
+  font-size:26px;
+  font-variant-numeric:tabular-nums;
+}
+.stat .l{font-size:12px;color:var(--fg-muted);}
+
+.timeline{
+  display:flex;
+  flex-direction:column;
+}
+.tl-item{
+  display:grid;
+  grid-template-columns:72px 1fr;
+  gap:18px;
+  padding-block:18px;
+  border-top:1px solid var(--line);
+}
+.tl-item:first-child{border-top:none;}
+.tl-item .dur{
+  font-family:var(--font-mono);
+  font-size:12.5px;
+  color:var(--fg-muted);
+  padding-top:3px;
+}
+.tl-item h3{font-size:16.5px;margin-bottom:8px;}
+.tl-item ul{
+  margin:0;
+  padding-left:18px;
+  color:var(--fg-muted);
+  font-size:14.5px;
+}
+.tl-item li{margin-bottom:4px;}
+.tl-break{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding-block:10px;
+  color:var(--fg-muted);
+  font-size:13px;
+  font-family:var(--font-mono);
+}
+.tl-break::before,.tl-break::after{
+  content:"";
+  flex:1;
+  height:1px;
+  background:repeating-linear-gradient(90deg,var(--line) 0 4px,transparent 4px 8px);
+}
+
+/* deep dive cards */
+.dive-grid{
+  display:grid;
+  gap:16px;
+}
+.dive{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:20px 22px;
+}
+.dive.attack{border-left:3px solid var(--attack);}
+.dive.defense{border-left:3px solid var(--defense);}
+.dive h3{font-size:17px;margin-bottom:6px;}
+.dive .tag{
+  font-family:var(--font-mono);
+  font-size:11px;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  padding:2px 8px;
+  border-radius:100px;
+  display:inline-block;
+  margin-bottom:10px;
+}
+.dive.attack .tag{background:var(--attack-soft);color:var(--attack);}
+.dive.defense .tag{background:var(--defense-soft);color:var(--defense);}
+.dive p{
+  font-size:14.5px;
+  color:var(--fg-muted);
+  margin-bottom:10px;
+}
+.taglist{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+}
+.taglist span{
+  font-size:12.5px;
+  padding:3px 9px;
+  border-radius:6px;
+  background:var(--surface-2);
+}
+a.cite{
+  font-family:var(--font-mono);
+  font-size:11px;
+  color:var(--fg-muted);
+  text-decoration:none;
+  border-bottom:1px dotted var(--fg-muted);
+}
+a.cite:hover{color:var(--accent);border-color:var(--accent);}
+
+/* speakers */
+.speaker-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+  gap:18px;
+}
+.speaker{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:20px;
+}
+.speaker .avatar{
+  width:44px;height:44px;
+  border-radius:100px;
+  background:var(--accent);
+  color:var(--accent-ink);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);
+  font-weight:600;
+  font-size:15px;
+  margin-bottom:12px;
+}
+.speaker h3{font-size:15.5px;margin-bottom:2px;}
+.speaker .affil{
+  font-size:12.5px;
+  color:var(--fg-muted);
+  margin-bottom:10px;
+}
+.speaker .bio{
+  font-size:13.5px;
+  color:var(--fg-muted);
+  margin-bottom:10px;
+}
+.speaker .mail{
+  font-family:var(--font-mono);
+  font-size:12px;
+  color:var(--fg-muted);
+  word-break:break-all;
+  user-select:all;
+}
+
+/* references */
+.ref-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:2px;
+  font-size:13.5px;
+}
+@media (min-width:680px){
+  .ref-grid{grid-template-columns:1fr 1fr;column-gap:28px;}
+}
+.ref-item{
+  display:flex;
+  gap:10px;
+  padding:9px 0;
+  border-top:1px solid var(--line);
+  scroll-margin-top:60px;
+}
+.ref-item:target{background:var(--surface-2);}
+.ref-item .rn{
+  font-family:var(--font-mono);
+  color:var(--fg-muted);
+  flex:0 0 auto;
+}
+.ref-item p{margin:0;color:var(--fg-muted);}
+
+footer{
+  padding-block:30px 48px;
+  font-size:12.5px;
+  color:var(--fg-muted);
+}
+footer .doi{font-family:var(--font-mono);}
+
+@media (max-width:480px){
+  .tl-item{grid-template-columns:1fr;gap:6px;}
+}
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="inner">
+    <span class="brand">GNN&nbsp;Robustness</span>
+    <a class="navlink" href="#overview">Overview</a>
+    <a class="navlink" href="#audience">Audience</a>
+    <a class="navlink" href="#program">Program</a>
+    <a class="navlink" href="#deep-dive">Topics</a>
+    <a class="navlink" href="#speakers">Speakers</a>
+    <a class="navlink" href="#references">References</a>
+  </div>
+</nav>
+
+<header class="hero wrap" id="overview">
+  <div class="venue-row">
+    <span class="badge">DSAA 2024 &middot; Tutorial</span>
+    <span class="badge">175 min</span>
+  </div>
+  <h1>Adversarial Robustness in Graph Neural Networks</h1>
+  <p class="lede">Graph Neural Networks power recommendation, fraud detection, and biomedical systems built on relational data &mdash; and a single attacker-controlled edge or node can quietly break them. This tutorial maps how GNNs are attacked, how they are defended, and where the open problems still are.</p>
+  <p class="lede" style="margin-top:14px">In recent years, Graph Neural Networks (GNNs) have attracted substantial attention due to their powerful ability in modeling graph-structured data and broad applications across domains such as social media, biology, health, and finance. Despite these successes, GNNs exhibit significant vulnerabilities to adversarial attacks, which poses challenges to their reliable deployment in real scenarios. This tutorial gives an in-depth exploration of existing adversarial attacks and state-of-the-art techniques for enhancing GNN robustness &mdash; attack and defense methods, evaluation and comparison of robust GNN models, and a discussion of open future directions.</p>
+  <div class="index-terms">
+    <span>Graph Neural Networks</span>
+    <span>Adversarial Attacks</span>
+    <span>Robustness</span>
+  </div>
+</header>
+
+<section class="wrap" id="audience">
+  <div class="section-head"><span class="num">01</span><h2>Targeted audience</h2></div>
+  <p style="color:var(--fg-muted)">This tutorial covers past and recent efforts in the adversarial robustness of GNNs. It is intended for researchers interested in both attacking and safeguarding GNNs, whether the goal is finding new failure modes or building systems that resist them. Attendees are expected to have a basic understanding of machine learning, optimization, and statistics; no prior graph learning background is assumed.</p>
+</section>
+
+<section class="wrap" id="program">
+  <div class="section-head"><span class="num">02</span><h2>Program</h2></div>
+  <div class="stat-row">
+    <div class="stat"><div class="n">5</div><div class="l">sessions</div></div>
+    <div class="stat"><div class="n">175</div><div class="l">minutes</div></div>
+    <div class="stat"><div class="n">1</div><div class="l">break</div></div>
+  </div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="dur">25 min</div>
+      <div>
+        <h3>1&nbsp;&middot;&nbsp;Introduction of GNNs</h3>
+        <ul>
+          <li>Foundations and applications of GNNs</li>
+          <li>Robustness challenges of GNNs</li>
+        </ul>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="dur">40 min</div>
+      <div>
+        <h3>2&nbsp;&middot;&nbsp;Adversarial Attacks on Graphs</h3>
+        <ul>
+          <li>Attack knowledge: white / gray / black-box</li>
+          <li>Attack phase: evasion / poisoning / backdoor</li>
+          <li>Attack mechanism: feature perturbation, structure modification, node injection <a class="cite" href="#ref-25">[25]</a></li>
+          <li>Attack target: local and global attacks</li>
+          <li>Large-scale attacks <a class="cite" href="#ref-9">[9]</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="tl-break">break &middot; 10 min</div>
+    <div class="tl-item">
+      <div class="dur">70 min</div>
+      <div>
+        <h3>3&nbsp;&middot;&nbsp;Adversarial Defenses on Graphs</h3>
+        <ul>
+          <li>Robust training <a class="cite" href="#ref-1">[1]</a> <a class="cite" href="#ref-6">[6]</a> <a class="cite" href="#ref-20">[20]</a></li>
+          <li>Graph cleaning <a class="cite" href="#ref-5">[5]</a> <a class="cite" href="#ref-11">[11]</a> <a class="cite" href="#ref-19">[19]</a></li>
+          <li>Attention mechanisms <a class="cite" href="#ref-9">[9]</a> <a class="cite" href="#ref-22">[22]</a> <a class="cite" href="#ref-24">[24]</a></li>
+          <li>Certifiable defenses <a class="cite" href="#ref-17">[17]</a></li>
+          <li>Optimization-induced architectures <a class="cite" href="#ref-7">[7]</a> <a class="cite" href="#ref-13">[13]</a> <a class="cite" href="#ref-21">[21]</a></li>
+          <li>Emerging perspectives <a class="cite" href="#ref-4">[4]</a> <a class="cite" href="#ref-10">[10]</a> <a class="cite" href="#ref-15">[15]</a> <a class="cite" href="#ref-23">[23]</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="dur">20 min</div>
+      <div>
+        <h3>4&nbsp;&middot;&nbsp;Evaluation, Comparison &amp; Applications</h3>
+        <ul>
+          <li>Resilience of robust GNNs across attack settings</li>
+          <li>Guidance for selecting defenses by scenario</li>
+          <li>Real-world applications: social networks, fraud detection <a class="cite" href="#ref-18">[18]</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="dur">10 min</div>
+      <div>
+        <h3>5&nbsp;&middot;&nbsp;Summary &amp; Future Directions</h3>
+        <ul>
+          <li>Recap and open problems in GNN robustness</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap" id="deep-dive">
+  <div class="section-head"><span class="num">03</span><h2>What each session covers</h2></div>
+  <div class="dive-grid">
+    <div class="dive">
+      <span class="tag">Foundations</span>
+      <h3>A &middot; Introduction</h3>
+      <p>A brief introduction to Graph Neural Networks, including popular architectures and their broad applications <a class="cite" href="#ref-8">[8]</a> <a class="cite" href="#ref-12">[12]</a> <a class="cite" href="#ref-16">[16]</a>. We then illustrate the vulnerability of GNNs and the resulting impact in real scenarios, especially privacy- and security-sensitive settings <a class="cite" href="#ref-2">[2]</a>, and motivate why safeguarding GNNs against increasingly sophisticated attacks matters &mdash; both theoretically and empirically <a class="cite" href="#ref-14">[14]</a>.</p>
+    </div>
+    <div class="dive attack">
+      <span class="tag">Attack</span>
+      <h3>B &middot; Adversarial Attacks on Graphs</h3>
+      <p>A comprehensive overview of adversarial attacks on graphs, categorized by attack knowledge <a class="cite" href="#ref-3">[3]</a> <a class="cite" href="#ref-20">[20]</a> <a class="cite" href="#ref-26">[26]</a>, attack phase, attack mechanism <a class="cite" href="#ref-25">[25]</a>, and attack target &mdash; plus scalable attacks on large graphs. For each category we describe the key methods and their distinctions, and walk through commonly used attacks, their mechanisms, and their limitations.</p>
+      <div class="taglist"><span>White/gray/black-box</span><span>Evasion/poisoning/backdoor</span><span>Structure &amp; feature perturbation</span><span>Node injection</span></div>
+    </div>
+    <div class="dive defense">
+      <span class="tag">Defense</span>
+      <h3>C &middot; Adversarial Defenses on Graphs</h3>
+      <p>Current advances in robust GNN defenses from multiple perspectives: classic strategies including robust training <a class="cite" href="#ref-1">[1]</a> <a class="cite" href="#ref-6">[6]</a> <a class="cite" href="#ref-20">[20]</a>, graph cleaning <a class="cite" href="#ref-5">[5]</a> <a class="cite" href="#ref-11">[11]</a> <a class="cite" href="#ref-19">[19]</a>, and attention mechanisms <a class="cite" href="#ref-9">[9]</a> <a class="cite" href="#ref-22">[22]</a> <a class="cite" href="#ref-24">[24]</a>; certifiable defenses and optimization-induced architectures <a class="cite" href="#ref-7">[7]</a> <a class="cite" href="#ref-13">[13]</a> <a class="cite" href="#ref-21">[21]</a>; and defenses tailored to specific scenarios &mdash; directed graphs <a class="cite" href="#ref-10">[10]</a>, large-scale graphs <a class="cite" href="#ref-4">[4]</a>, and specialized theoretical frameworks <a class="cite" href="#ref-15">[15]</a> <a class="cite" href="#ref-23">[23]</a>.</p>
+      <div class="taglist"><span>Robust training</span><span>Graph cleaning</span><span>Attention</span><span>Certifiable</span><span>Optimization-induced</span></div>
+    </div>
+    <div class="dive">
+      <span class="tag">Evaluation</span>
+      <h3>D &middot; Evaluation, Comparison &amp; Application</h3>
+      <p>A thorough assessment of the preceding methods against various adversarial attacks, revealing the resilience of robust GNNs under different settings and offering guidance on selecting a defense for a given scenario. We also discuss implications for real-world applications, including social networks and fraud detection <a class="cite" href="#ref-18">[18]</a>.</p>
+    </div>
+    <div class="dive">
+      <span class="tag">Outlook</span>
+      <h3>E &middot; Summary &amp; Discussion</h3>
+      <p>We close with a summary of the tutorial and motivating discussion on open future directions for GNN robustness.</p>
+    </div>
+  </div>
+</section>
+
+<section class="wrap" id="speakers">
+  <div class="section-head"><span class="num">04</span><h2>Presenters</h2></div>
+  <div class="speaker-grid">
+    <div class="speaker">
+      <div class="avatar">ZH</div>
+      <h3>Zhichao Hou</h3>
+      <div class="affil">Ph.D. Student, North Carolina State University</div>
+      <p class="bio">Research interests include machine learning on graphs and adversarial machine learning.</p>
+      <div class="mail">zhou4@ncsu.edu</div>
+    </div>
+    <div class="speaker">
+      <div class="avatar">ML</div>
+      <h3>Minhua Lin</h3>
+      <div class="affil">Ph.D. Student (2nd year), Pennsylvania State University</div>
+      <p class="bio">Research interests lie in data mining, graph neural networks, and trustworthy machine learning.</p>
+      <div class="mail">mfl5681@psu.edu</div>
+    </div>
+    <div class="speaker">
+      <div class="avatar">MT</div>
+      <h3>MohamadAli Torkamani</h3>
+      <div class="affil">Senior Applied Scientist, Amazon AWS</div>
+      <p class="bio">Ph.D. in Computer Science, University of Oregon (2016). 17+ years across graphical models, adversarial ML taxonomy, structured prediction, and deep learning.</p>
+      <div class="mail">alitor@amazon.com</div>
+    </div>
+    <div class="speaker">
+      <div class="avatar">SW</div>
+      <h3>Suhang Wang</h3>
+      <div class="affil">Assistant Professor, Pennsylvania State University</div>
+      <p class="bio">Ph.D. in Computer Science, Arizona State University (2018). Research in graph mining, trustworthy machine learning, and deep generative models &mdash; 130+ publications, 18,200+ citations, h-index 57.</p>
+      <div class="mail">szw494@psu.edu</div>
+    </div>
+    <div class="speaker">
+      <div class="avatar">XL</div>
+      <h3>Xiaorui Liu</h3>
+      <div class="affil">Assistant Professor, North Carolina State University</div>
+      <p class="bio">Ph.D. in Computer Science, Michigan State University (2022). Research in deep learning on graphs, large-scale machine learning, and trustworthy artificial intelligence.</p>
+      <div class="mail">xliu96@ncsu.edu</div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap" id="references">
+  <div class="section-head"><span class="num">05</span><h2>References</h2></div>
+  <div class="ref-grid" id="ref-list"></div>
+</section>
+
+<div class="wrap">
+  <footer>
+    <p>Presented at the <strong>2024 IEEE 11th International Conference on Data Science and Advanced Analytics (DSAA)</strong>.<br>
+    <span class="doi">DOI 10.1109/DSAA61799.2024.10722771</span></p>
+  </footer>
+</div>
+
+<script>
+(function(){
+  var refs = [
+    "J. Chen, X. Lin, H. Xiong, Y. Wu, H. Zheng, and Q. Xuan. Smoothing adversarial training for GNN. <em>IEEE Transactions on Computational Social Systems</em>, 8(3):618–629, 2020.",
+    "E. Dai, T. Zhao, H. Zhu, J. Xu, Z. Guo, H. Liu, J. Tang, and S. Wang. A comprehensive survey on trustworthy graph neural networks: privacy, robustness, fairness, and explainability. <em>arXiv:2204.08570</em>, 2022.",
+    "H. Dai, H. Li, T. Tian, X. Huang, L. Wang, J. Zhu, and L. Song. Adversarial attack on graph structured data. <em>ICML</em>, 1115–1124, 2018.",
+    "C. Deng, X. Li, Z. Feng, and Z. Zhang. GARNET: reduced-rank topology learning for robust and scalable graph neural networks. <em>Learning on Graphs Conference</em>, 3–1, 2022.",
+    "N. Entezari, S. A. Al-Sayouri, A. Darvishzadeh, and E. E. Papalexakis. All you need is low (rank): defending against adversarial attacks on graphs. <em>WSDM</em>, 169–177, 2020.",
+    "F. Feng, X. He, J. Tang, and T.-S. Chua. Graph adversarial training: dynamically regularizing based on graph structure. <em>IEEE TKDE</em>, 33(6):2493–2504, 2019.",
+    "R. Feng, Z. Hou, T. Derr, and X. Liu. Robust graph neural networks via unbiased aggregation. <em>arXiv</em>, 2023.",
+    "J. Gasteiger, A. Bojchevski, and S. Günnemann. Predict then propagate: graph neural networks meet personalized PageRank. <em>arXiv:1810.05997</em>, 2018.",
+    "S. Geisler, T. Schmidt, H. Şirin, D. Zügner, A. Bojchevski, and S. Günnemann. Robustness of graph neural networks at scale. <em>NeurIPS</em>, 34:7637–7649, 2021.",
+    "Z. Hou, X. Zhang, W. Wang, C. C. Aggarwal, and X. Liu. Can directed graph neural networks be adversarially robust? <em>arXiv</em>, 2023.",
+    "W. Jin, Y. Ma, X. Liu, X. Tang, S. Wang, and J. Tang. Graph structure learning for robust graph neural networks. <em>KDD</em>, 66–74, 2020.",
+    "T. N. Kipf and M. Welling. Semi-supervised classification with graph convolutional networks. <em>arXiv:1609.02907</em>, 2016.",
+    "X. Liu, W. Jin, Y. Ma, Y. Li, H. Liu, Y. Wang, M. Yan, and J. Tang. Elastic graph neural networks. <em>ICML</em>, 6837–6849, 2021.",
+    "F. Mujkanovic, S. Geisler, S. Günnemann, and A. Bojchevski. Are defenses for graph neural networks robust? <em>NeurIPS</em>, 35:8954–8968, 2022.",
+    "T. K. Rusch, B. Chamberlain, J. Rowbottom, S. Mishra, and M. Bronstein. Graph-coupled oscillator networks. <em>ICML</em>, 18888–18909, 2022.",
+    "P. Veličković, G. Cucurull, A. Casanova, A. Romero, P. Liò, and Y. Bengio, et al. Graph attention networks. <em>stat</em>, 1050(20):10–48550, 2017.",
+    "B. Wang, J. Jia, X. Cao, and N. Z. Gong. Certified robustness of graph neural networks against adversarial structural perturbation. <em>KDD</em>, 1645–1653, 2021.",
+    "H. Wang, Y. Dou, C. Chen, L. Sun, P. S. Yu, and K. Shu. Attacking fake news detectors via manipulating news social engagement. <em>WWW</em>, 3978–3986, 2023.",
+    "H. Wu, C. Wang, Y. Tyshetskiy, A. Docherty, K. Lu, and L. Zhu. Adversarial examples on graph data: deep insights into attack and defense. <em>arXiv:1903.01610</em>, 2019.",
+    "K. Xu, H. Chen, S. Liu, P.-Y. Chen, T.-W. Weng, M. Hong, and X. Lin. Topology attack and defense for graph neural networks: an optimization perspective. <em>arXiv:1906.04214</em>, 2019.",
+    "Y. Yang, T. Liu, Y. Wang, J. Zhou, Q. Gan, Z. Wei, Z. Zhang, Z. Huang, and D. Wipf. Graph neural networks inspired by classical iterative algorithms. <em>ICML</em>, 11773–11783, 2021.",
+    "X. Zhang and M. Zitnik. GNNGuard: defending graph neural networks against adversarial attacks. <em>NeurIPS</em>, 33:9263–9275, 2020.",
+    "K. Zhao, Q. Kang, Y. Song, R. She, S. Wang, and W. P. Tay. Adversarial robustness in graph neural networks: a Hamiltonian approach. <em>NeurIPS</em>, 2024.",
+    "D. Zhu, Z. Zhang, P. Cui, and W. Zhu. Robust graph convolutional networks against adversarial attacks. <em>KDD</em>, 1399–1407, 2019.",
+    "X. Zou, Q. Zheng, Y. Dong, X. Guan, E. Kharlamov, J. Lu, and J. Tang. TDGIA: effective injection attacks on graph neural networks. <em>KDD</em>, 2461–2471, 2021.",
+    "D. Zügner, A. Akbarnejad, and S. Günnemann. Adversarial attacks on neural networks for graph data. <em>KDD</em>, 2847–2856, 2018."
+  ];
+  var list = document.getElementById('ref-list');
+  var html = '';
+  refs.forEach(function(text, i){
+    var n = i + 1;
+    html += '<div class="ref-item" id="ref-' + n + '"><span class="rn">[' + n + ']</span><p>' + text + '</p></div>';
+  });
+  list.innerHTML = html;
+})();
+</script>
+</body>
+</html>
