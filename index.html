@@ -322,15 +322,21 @@ a.cite:hover{color:var(--accent);border-color:var(--accent);}
   padding:20px;
 }
 .speaker .avatar{
-  width:44px;height:44px;
+  width:56px;height:56px;
   border-radius:100px;
   background:var(--accent);
   color:var(--accent-ink);
   display:flex;align-items:center;justify-content:center;
   font-family:var(--font-display);
   font-weight:600;
-  font-size:15px;
+  font-size:16px;
   margin-bottom:12px;
+  overflow:hidden;
+}
+.speaker .avatar img{
+  width:100%;height:100%;
+  object-fit:cover;
+  display:block;
 }
 .speaker h3{font-size:15.5px;margin-bottom:2px;}
 .speaker .affil{
@@ -528,35 +534,35 @@ footer .doi{font-family:var(--font-mono);}
   <div class="section-head"><span class="num">04</span><h2>Presenters</h2></div>
   <div class="speaker-grid">
     <div class="speaker">
-      <div class="avatar">ZH</div>
+      <div class="avatar"><img src="zch.jpg" alt="Zhichao Hou" loading="lazy"></div>
       <h3>Zhichao Hou</h3>
       <div class="affil">Ph.D. Student, North Carolina State University</div>
       <p class="bio">Research interests include machine learning on graphs and adversarial machine learning.</p>
       <div class="mail">zhou4@ncsu.edu</div>
     </div>
     <div class="speaker">
-      <div class="avatar">ML</div>
+      <div class="avatar"><img src="mhl.jpg" alt="Minhua Lin" loading="lazy"></div>
       <h3>Minhua Lin</h3>
       <div class="affil">Ph.D. Student (2nd year), Pennsylvania State University</div>
       <p class="bio">Research interests lie in data mining, graph neural networks, and trustworthy machine learning.</p>
       <div class="mail">mfl5681@psu.edu</div>
     </div>
     <div class="speaker">
-      <div class="avatar">MT</div>
+      <div class="avatar"><img src="mt.jpg" alt="MohamadAli Torkamani" loading="lazy"></div>
       <h3>MohamadAli Torkamani</h3>
       <div class="affil">Senior Applied Scientist, Amazon AWS</div>
       <p class="bio">Ph.D. in Computer Science, University of Oregon (2016). 17+ years across graphical models, adversarial ML taxonomy, structured prediction, and deep learning.</p>
       <div class="mail">alitor@amazon.com</div>
     </div>
     <div class="speaker">
-      <div class="avatar">SW</div>
+      <div class="avatar"><img src="shw.jpg" alt="Suhang Wang" loading="lazy"></div>
       <h3>Suhang Wang</h3>
       <div class="affil">Assistant Professor, Pennsylvania State University</div>
       <p class="bio">Ph.D. in Computer Science, Arizona State University (2018). Research in graph mining, trustworthy machine learning, and deep generative models &mdash; 130+ publications, 18,200+ citations, h-index 57.</p>
       <div class="mail">szw494@psu.edu</div>
     </div>
     <div class="speaker">
-      <div class="avatar">XL</div>
+      <div class="avatar"><img src="xrl.jpg" alt="Xiaorui Liu" loading="lazy"></div>
       <h3>Xiaorui Liu</h3>
       <div class="affil">Assistant Professor, North Carolina State University</div>
       <p class="bio">Ph.D. in Computer Science, Michigan State University (2022). Research in deep learning on graphs, large-scale machine learning, and trustworthy artificial intelligence.</p>
