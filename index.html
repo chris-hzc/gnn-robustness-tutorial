@@ -309,46 +309,76 @@ a.cite{
 }
 a.cite:hover{color:var(--accent);border-color:var(--accent);}
 
-/* slides card */
-.slides-card{
-  display:flex;
-  gap:22px;
-  align-items:center;
+/* in-page slide deck viewer */
+.deck{
   background:var(--surface);
   border:1px solid var(--line);
   border-radius:10px;
-  padding:16px;
-  text-decoration:none;
-  color:var(--fg);
-  transition:border-color .15s ease;
+  overflow:hidden;
 }
-.slides-card:hover{border-color:var(--accent);}
-.slides-card img{
-  width:220px;
+.deck:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+.deck-frame{
+  position:relative;
   aspect-ratio:16/9;
-  object-fit:cover;
-  border-radius:6px;
-  border:1px solid var(--line);
-  flex:0 0 auto;
+  background:var(--surface-2);
+  touch-action:pan-y;
 }
-.slides-card .meta{min-width:0;}
-.slides-card h3{font-size:16.5px;margin-bottom:4px;}
-.slides-card .sub{font-size:13px;color:var(--fg-muted);margin-bottom:12px;}
-.slides-card .btn{
-  display:inline-flex;
+.deck-frame img{
+  width:100%;height:100%;
+  object-fit:contain;
+  display:block;
+  user-select:none;
+  -webkit-user-drag:none;
+}
+.deck-nav{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  width:38px;height:38px;
+  border-radius:100px;
+  border:none;
+  background:color-mix(in srgb, var(--fg) 55%, transparent);
+  color:var(--bg);
+  font-size:19px;
+  line-height:1;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  opacity:.75;
+  transition:opacity .15s ease,background .15s ease;
+}
+.deck-nav:hover,.deck-nav:focus-visible{opacity:1;background:var(--accent);}
+.deck-nav.prev{left:10px;}
+.deck-nav.next{right:10px;}
+.deck-bar{
+  display:flex;
   align-items:center;
-  gap:6px;
+  gap:14px;
+  padding:12px 16px;
+  border-top:1px solid var(--line);
+}
+.deck-bar input[type="range"]{
+  flex:1;
+  accent-color:var(--accent);
+}
+.deck-count{
   font-family:var(--font-mono);
   font-size:12.5px;
-  padding:6px 12px;
+  color:var(--fg-muted);
+  min-width:58px;
+  text-align:right;
+  font-variant-numeric:tabular-nums;
+}
+.deck-pdf{
+  font-family:var(--font-mono);
+  font-size:12px;
+  white-space:nowrap;
+  padding:5px 10px;
   border-radius:100px;
-  background:var(--accent);
-  color:var(--accent-ink);
+  border:1px solid var(--line);
+  color:var(--fg-muted);
+  text-decoration:none;
 }
-@media (max-width:560px){
-  .slides-card{flex-direction:column;align-items:stretch;}
-  .slides-card img{width:100%;}
-}
+.deck-pdf:hover{color:var(--accent);border-color:var(--accent);}
 
 /* speakers */
 .speaker-grid{
@@ -542,14 +572,18 @@ footer .doi{font-family:var(--font-mono);}
 
 <section class="wrap" id="slides">
   <div class="section-head"><span class="num">&mdash;</span><h2>Slides</h2></div>
-  <a class="slides-card" href="DSAA_Slides_HZC.pdf" target="_blank" rel="noopener">
-    <img src="slides-cover.jpg" alt="Title slide of the tutorial deck">
-    <div class="meta">
-      <h3>Full tutorial deck</h3>
-      <p class="sub">100 slides &middot; PDF &middot; opens in a new tab</p>
-      <span class="btn">Open slides &#8599;</span>
+  <div class="deck" id="deck" tabindex="0" aria-label="Slide deck viewer, use arrow keys or swipe to navigate">
+    <div class="deck-frame">
+      <img id="deck-img" src="slides/slide-001.jpg" alt="Slide 1 of 100">
+      <button type="button" class="deck-nav prev" id="deck-prev" aria-label="Previous slide">&#8249;</button>
+      <button type="button" class="deck-nav next" id="deck-next" aria-label="Next slide">&#8250;</button>
     </div>
-  </a>
+    <div class="deck-bar">
+      <input type="range" id="deck-range" min="1" max="100" value="1" aria-label="Slide position">
+      <span class="deck-count"><span id="deck-n">1</span> / 100</span>
+      <a class="deck-pdf" href="DSAA_Slides_HZC.pdf" target="_blank" rel="noopener">PDF &#8599;</a>
+    </div>
+  </div>
 </section>
 
 <section class="wrap" id="deep-dive">
@@ -675,6 +709,70 @@ footer .doi{font-family:var(--font-mono);}
     html += '<div class="ref-item" id="ref-' + n + '"><span class="rn">[' + n + ']</span><p>' + text + '</p></div>';
   });
   list.innerHTML = html;
+})();
+
+(function(){
+  var total = 100;
+  var current = 1;
+  var deck = document.getElementById('deck');
+  var frame = deck.querySelector('.deck-frame');
+  var img = document.getElementById('deck-img');
+  var range = document.getElementById('deck-range');
+  var nEl = document.getElementById('deck-n');
+  var prevBtn = document.getElementById('deck-prev');
+  var nextBtn = document.getElementById('deck-next');
+  var storeKey = 'gnn-tutorial-slide';
+
+  function pad(n){ return String(n).padStart(3,'0'); }
+  function src(n){ return 'slides/slide-' + pad(n) + '.jpg'; }
+
+  function preload(n){
+    if(n < 1 || n > total) return;
+    var im = new Image();
+    im.src = src(n);
+  }
+
+  function render(n, fromRange){
+    current = Math.min(total, Math.max(1, n));
+    img.src = src(current);
+    img.alt = 'Slide ' + current + ' of ' + total;
+    nEl.textContent = current;
+    if(!fromRange) range.value = current;
+    preload(current + 1);
+    preload(current - 1);
+    try{ localStorage.setItem(storeKey, String(current)); }catch(e){}
+  }
+
+  prevBtn.addEventListener('click', function(){ render(current - 1); });
+  nextBtn.addEventListener('click', function(){ render(current + 1); });
+  range.addEventListener('input', function(){ render(parseInt(range.value, 10) || 1, true); });
+
+  deck.addEventListener('keydown', function(e){
+    if(e.target === range) return;
+    if(e.key === 'ArrowRight'){ render(current + 1); e.preventDefault(); }
+    else if(e.key === 'ArrowLeft'){ render(current - 1); e.preventDefault(); }
+  });
+
+  var touchStartX = 0, touchStartY = 0;
+  frame.addEventListener('touchstart', function(e){
+    var t = e.changedTouches[0];
+    touchStartX = t.clientX; touchStartY = t.clientY;
+  }, {passive:true});
+  frame.addEventListener('touchend', function(e){
+    var t = e.changedTouches[0];
+    var dx = t.clientX - touchStartX;
+    var dy = t.clientY - touchStartY;
+    if(Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)){
+      if(dx < 0) render(current + 1); else render(current - 1);
+    }
+  }, {passive:true});
+
+  var start = 1;
+  try{
+    var saved = parseInt(localStorage.getItem(storeKey), 10);
+    if(saved >= 1 && saved <= total) start = saved;
+  }catch(e){}
+  render(start);
 })();
 </script>
 </body>
