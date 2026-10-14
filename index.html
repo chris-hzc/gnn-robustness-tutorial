@@ -309,6 +309,47 @@ a.cite{
 }
 a.cite:hover{color:var(--accent);border-color:var(--accent);}
 
+/* slides card */
+.slides-card{
+  display:flex;
+  gap:22px;
+  align-items:center;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:16px;
+  text-decoration:none;
+  color:var(--fg);
+  transition:border-color .15s ease;
+}
+.slides-card:hover{border-color:var(--accent);}
+.slides-card img{
+  width:220px;
+  aspect-ratio:16/9;
+  object-fit:cover;
+  border-radius:6px;
+  border:1px solid var(--line);
+  flex:0 0 auto;
+}
+.slides-card .meta{min-width:0;}
+.slides-card h3{font-size:16.5px;margin-bottom:4px;}
+.slides-card .sub{font-size:13px;color:var(--fg-muted);margin-bottom:12px;}
+.slides-card .btn{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-family:var(--font-mono);
+  font-size:12.5px;
+  padding:6px 12px;
+  border-radius:100px;
+  background:var(--accent);
+  color:var(--accent-ink);
+}
+@media (max-width:560px){
+  .slides-card{flex-direction:column;align-items:stretch;}
+  .slides-card img{width:100%;}
+}
+
 /* speakers */
 .speaker-grid{
   display:grid;
@@ -402,6 +443,7 @@ footer .doi{font-family:var(--font-mono);}
     <a class="navlink" href="#overview">Overview</a>
     <a class="navlink" href="#audience">Audience</a>
     <a class="navlink" href="#program">Program</a>
+    <a class="navlink" href="#slides">Slides</a>
     <a class="navlink" href="#deep-dive">Topics</a>
     <a class="navlink" href="#speakers">Speakers</a>
     <a class="navlink" href="#references">References</a>
@@ -411,7 +453,8 @@ footer .doi{font-family:var(--font-mono);}
 <header class="hero wrap" id="overview">
   <div class="venue-row">
     <span class="badge">DSAA 2024 &middot; Tutorial</span>
-    <span class="badge">175 min</span>
+    <span class="badge">Oct 9 &middot; 11:00&ndash;12:30</span>
+    <span class="badge">Room Cabrillo</span>
   </div>
   <h1>Adversarial Robustness in Graph Neural Networks</h1>
   <p class="lede">Graph Neural Networks power recommendation, fraud detection, and biomedical systems built on relational data &mdash; and a single attacker-controlled edge or node can quietly break them. This tutorial maps how GNNs are attacked, how they are defended, and where the open problems still are.</p>
@@ -495,6 +538,18 @@ footer .doi{font-family:var(--font-mono);}
       </div>
     </div>
   </div>
+</section>
+
+<section class="wrap" id="slides">
+  <div class="section-head"><span class="num">&mdash;</span><h2>Slides</h2></div>
+  <a class="slides-card" href="DSAA_Slides_HZC.pdf" target="_blank" rel="noopener">
+    <img src="slides-cover.jpg" alt="Title slide of the tutorial deck">
+    <div class="meta">
+      <h3>Full tutorial deck</h3>
+      <p class="sub">100 slides &middot; PDF &middot; opens in a new tab</p>
+      <span class="btn">Open slides &#8599;</span>
+    </div>
+  </a>
 </section>
 
 <section class="wrap" id="deep-dive">
